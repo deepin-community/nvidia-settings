@@ -1,0 +1,14 @@
+Author: Andreas Beckmann <anbe@debian.org>
+Description: link against -ldl on !linux, too
+
+--- a/utils.mk
++++ b/utils.mk
+@@ -152,7 +152,7 @@ endif
+ ifeq ($(TARGET_OS),Linux)
+   LIBDL_LIBS = -ldl
+ else
+-  LIBDL_LIBS =
++  LIBDL_LIBS = -ldl
+ endif
+ 
+ # This variable controls which floating-point ABI is targeted.  For ARM, it

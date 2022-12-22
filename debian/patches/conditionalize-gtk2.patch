@@ -1,0 +1,45 @@
+Author: Andreas Beckmann <anbe@debian.org>
+Description: support building without GTK+ 2
+
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -62,6 +62,11 @@ else
+   GTK3_LDFLAGS ?=
+ endif
+ 
++# If GTK2_CFLAGS is set, try and build GTK2LIB
++ifdef GTK2_CFLAGS
++  BUILD_GTK2LIB = 1
++endif
++
+ # If GTK3_CFLAGS is set, try and build GTK3LIB
+ ifdef GTK3_CFLAGS
+   BUILD_GTK3LIB = 1
+@@ -116,10 +121,16 @@ NVIDIA_SETTINGS = $(OUTPUTDIR)/nvidia-se
+ 
+ NVIDIA_SETTINGS_VERSION := $(NVIDIA_VERSION)
+ 
++ifdef BUILD_GTK2LIB
+ GTK2LIB_NAME = libnvidia-gtk2.so
+ GTK2LIB_DIR  = $(OUTPUTDIR)/gtk2
+ GTK2LIB = $(OUTPUTDIR)/$(GTK2LIB_NAME)
+ GTK2LIB_SONAME = $(GTK2LIB_NAME).$(NVIDIA_SETTINGS_VERSION)
++else
++  # This value is empty if we are not building GTK3 so that the
++  # nvidia-settings build step has this as an empty dependency.
++  GTK2LIB =
++endif
+ 
+ ifdef BUILD_GTK3LIB
+   GTK3LIB_NAME = libnvidia-gtk3.so
+@@ -261,8 +272,10 @@ install: NVIDIA_SETTINGS_install NVIDIA_
+ 
+ NVIDIA_GTKLIB_install: $(GTK2LIB) $(GTK3LIB)
+ 	$(MKDIR) $(LIBDIR)
++ifdef BUILD_GTK2LIB
+ 	$(INSTALL) $(INSTALL_LIB_ARGS) $(GTK2LIB) \
+ 	    $(LIBDIR)/$(GTK2LIB_SONAME)
++endif
+ ifdef BUILD_GTK3LIB
+ 	$(INSTALL) $(INSTALL_LIB_ARGS) $(GTK3LIB) \
+ 	    $(LIBDIR)/$(GTK3LIB_SONAME)

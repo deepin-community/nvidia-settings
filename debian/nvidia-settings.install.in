@@ -1,0 +1,6 @@
+usr/bin/nvidia-settings				usr/lib/#PRIVATE#/
+debian/nvidia-settings.desktop			usr/lib/#PRIVATE#/
+usr/share/icons/
+usr/bin/nv-control-dpy				usr/lib/#PRIVATE#/
+usr/share/man/man1/nvidia-settings.1.gz		usr/lib/#PRIVATE#/
+usr/lib/libnvidia-gtk?.so.*
