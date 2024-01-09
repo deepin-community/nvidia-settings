@@ -85,7 +85,8 @@
 #define TARGET_TYPE_IS_NVML_COMPATIBLE(_TARGET_TYPE_) \
     (((_TARGET_TYPE_) == GPU_TARGET) ||               \
      ((_TARGET_TYPE_) == THERMAL_SENSOR_TARGET) ||    \
-     ((_TARGET_TYPE_) == COOLER_TARGET))
+     ((_TARGET_TYPE_) == COOLER_TARGET) ||            \
+     ((_TARGET_TYPE_) == MUX_TARGET))
 
 #define TARGET_TYPE_NEEDS_NVCONTROL(_TARGET_TYPE_)     \
     (!(TARGET_TYPE_IS_NVML_COMPATIBLE(_TARGET_TYPE_)))
@@ -169,15 +170,39 @@ struct __NvCtrlNvmlAttributes {
         typeof(nvmlDeviceGetUUID)                       (*deviceGetUUID);
         typeof(nvmlDeviceGetCount)                      (*deviceGetCount);
         typeof(nvmlDeviceGetTemperature)                (*deviceGetTemperature);
-        typeof(nvmlDeviceGetFanSpeed)                   (*deviceGetFanSpeed);
         typeof(nvmlDeviceGetName)                       (*deviceGetName);
         typeof(nvmlDeviceGetVbiosVersion)               (*deviceGetVbiosVersion);
         typeof(nvmlDeviceGetMemoryInfo)                 (*deviceGetMemoryInfo);
+        typeof(nvmlDeviceGetMemoryInfo_v2)              (*deviceGetMemoryInfo_v2);
         typeof(nvmlDeviceGetPciInfo)                    (*deviceGetPciInfo);
+        typeof(nvmlDeviceGetCurrPcieLinkWidth)          (*deviceGetCurrPcieLinkWidth);
         typeof(nvmlDeviceGetMaxPcieLinkGeneration)      (*deviceGetMaxPcieLinkGeneration);
         typeof(nvmlDeviceGetMaxPcieLinkWidth)           (*deviceGetMaxPcieLinkWidth);
         typeof(nvmlDeviceGetVirtualizationMode)         (*deviceGetVirtualizationMode);
         typeof(nvmlDeviceGetGridLicensableFeatures_v4)  (*deviceGetGridLicensableFeatures);
+        typeof(nvmlDeviceGetGspFirmwareMode)            (*deviceGetGspFirmwareMode);
+        typeof(nvmlDeviceGetUtilizationRates)           (*deviceGetUtilizationRates);
+        typeof(nvmlDeviceGetTemperatureThreshold)       (*deviceGetTemperatureThreshold);
+        typeof(nvmlDeviceGetFanSpeed_v2)                (*deviceGetFanSpeed_v2);
+        typeof(nvmlSystemGetDriverVersion)              (*systemGetDriverVersion);
+        typeof(nvmlDeviceGetEccMode)                    (*deviceGetEccMode);
+        typeof(nvmlDeviceGetDefaultEccMode)             (*deviceGetDefaultEccMode);
+        typeof(nvmlDeviceSetEccMode)                    (*deviceSetEccMode);
+        typeof(nvmlDeviceGetTotalEccErrors)             (*deviceGetTotalEccErrors);
+        typeof(nvmlDeviceClearEccErrorCounts)           (*deviceClearEccErrorCounts);
+        typeof(nvmlDeviceGetMemoryErrorCounter)         (*deviceGetMemoryErrorCounter);
+        typeof(nvmlSystemGetNVMLVersion)                (*systemGetNVMLVersion);
+        typeof(nvmlDeviceGetNumGpuCores)                (*deviceGetNumGpuCores);
+        typeof(nvmlDeviceGetMemoryBusWidth)             (*deviceGetMemoryBusWidth);
+        typeof(nvmlDeviceGetIrqNum)                     (*deviceGetIrqNum);
+        typeof(nvmlDeviceGetPowerSource)                (*deviceGetPowerSource);
+        typeof(nvmlDeviceGetNumFans)                    (*deviceGetNumFans);
+        typeof(nvmlDeviceSetFanSpeed_v2)                (*deviceSetFanSpeed_v2);
+        typeof(nvmlDeviceGetTargetFanSpeed)             (*deviceGetTargetFanSpeed);
+        typeof(nvmlDeviceGetMinMaxFanSpeed)             (*deviceGetMinMaxFanSpeed);
+        typeof(nvmlDeviceSetFanControlPolicy)           (*deviceSetFanControlPolicy);
+        typeof(nvmlDeviceGetFanControlPolicy_v2)        (*deviceGetFanControlPolicy_v2);
+        typeof(nvmlDeviceSetDefaultFanSpeed_v2)         (*deviceSetDefaultFanSpeed_v2);
 
     } lib;
 
@@ -207,6 +232,9 @@ struct __NvCtrlAttributePrivateHandle {
 
     /* NVML-specific attributes */
     NvCtrlNvmlAttributes *nvml;
+
+    /* Wayland display ptr */
+    void *wayland_dpy;
 };
 
 struct __NvCtrlEventPrivateHandle {
@@ -296,6 +324,7 @@ ReturnStatus NvCtrlEglGetVoidAttribute(const NvCtrlAttributePrivateHandle *,
 
 ReturnStatus NvCtrlEglGetStringAttribute(const NvCtrlAttributePrivateHandle *,
                                          unsigned int, int, char **);
+Bool NvCtrlEglDelayedInit(NvCtrlAttributePrivateHandle *);
 
 /* XRandR extension attribute functions */
 
@@ -442,6 +471,8 @@ ReturnStatus NvCtrlNvmlGetAttribute(const CtrlTarget *ctrl_target,
                                     int attr, int64_t *val);
 ReturnStatus NvCtrlNvmlGetGridLicenseAttributes(const CtrlTarget *ctrl_target,
                                                 int attr, nvmlGridLicensableFeatures_t **val);
+ReturnStatus NvCtrlNvmlDeviceGetGspAttributes(const CtrlTarget *ctrl_target, int attr,
+                                              unsigned int *isEnabled, unsigned int *defaultMode);
 ReturnStatus NvCtrlNvmlSetAttribute(CtrlTarget *ctrl_target, int attr,
                                     int index, int val);
 ReturnStatus
@@ -455,5 +486,10 @@ ReturnStatus
 NvCtrlNvmlGetValidAttributeValues(const CtrlTarget *ctrl_target,
                                   int attr,
                                   CtrlAttributeValidValues *val);
+
+ReturnStatus
+NvCtrlNvmlGetAttributePerms(const NvCtrlAttributePrivateHandle *,
+                            CtrlAttributeType, int,
+                            CtrlAttributePerms *);
 
 #endif /* __NVCTRL_ATTRIBUTES_PRIVATE__ */

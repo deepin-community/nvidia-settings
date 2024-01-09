@@ -4,3 +4,4 @@ usr/share/icons/
 usr/bin/nv-control-dpy				usr/lib/#PRIVATE#/
 usr/share/man/man1/nvidia-settings.1.gz		usr/lib/#PRIVATE#/
 usr/lib/libnvidia-gtk?.so.*
+usr/lib/libnvidia-wayland-client.so.*

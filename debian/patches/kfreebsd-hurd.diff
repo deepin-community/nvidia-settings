@@ -3,7 +3,7 @@ Description: link against -ldl on !linux, too
 
 --- a/utils.mk
 +++ b/utils.mk
-@@ -152,7 +152,7 @@ endif
+@@ -166,7 +166,7 @@ endif
  ifeq ($(TARGET_OS),Linux)
    LIBDL_LIBS = -ldl
  else

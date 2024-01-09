@@ -9,15 +9,17 @@ Forwarded: not-needed
 +Version=1.0
  Type=Application
 -Encoding=UTF-8
-+Exec=nvidia-settings
-+Terminal=false
-+Categories=HardwareSettings;System;Settings;
-+Icon=nvidia-settings
- Name=NVIDIA X Server Settings
- Comment=Configure NVIDIA X Server Settings
+-Name=NVIDIA X Server Settings
+-Comment=Configure NVIDIA X Server Settings
 -Exec=__UTILS_PATH__/nvidia-settings
 -Icon=__PIXMAP_PATH__/nvidia-settings.png
 -Categories=__NVIDIA_SETTINGS_DESKTOP_CATEGORIES__
++Exec=nvidia-settings
++Terminal=false
++Categories=HardwareSettings;System;Settings;
++Icon=nvidia-settings#VARIANT#
++Name=NVIDIA X Server Settings#VARIANT_DESC#
++Comment=Configure NVIDIA X Server Settings#VARIANT_DESC#
  
  # Translation by Marcin Mikołajczak
  Name[pl]=Ustawienia serwera X NVIDIA

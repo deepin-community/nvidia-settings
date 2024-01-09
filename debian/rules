@@ -8,6 +8,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 include /usr/share/dpkg/buildflags.mk
 include /usr/share/dpkg/pkg-info.mk
+DPKG_EXPORT_BUILDTOOLS=1
+include /usr/share/dpkg/buildtools.mk
 
 PKG_CONFIG_XORG_XSERVER_LIBDIR	 = $(shell pkg-config --variable=libdir xorg-server)
 CPPFLAGS		+= -DPKG_CONFIG_XORG_XSERVER_LIBDIR='\"$(PKG_CONFIG_XORG_XSERVER_LIBDIR)\"'
@@ -29,12 +31,25 @@ include debian/rules.defs
 NVIDIA_LEGACY		?=
 NVIDIA_TESLA		?=
 NVIDIA_RELEASE		 = $(DEB_VERSION_UPSTREAM)
-variant			 = $(if $(NVIDIA_TESLA),tesla-$(NVIDIA_TESLA),$(if $(NVIDIA_LEGACY),legacy-$(NVIDIA_LEGACY)xx))
-variant_description	 = $(if $(NVIDIA_TESLA), (Tesla $(NVIDIA_TESLA) version),$(if $(NVIDIA_LEGACY), ($(NVIDIA_LEGACY)xx legacy version)))
+empty			 =
+variant			 =
+variant_description	 =
+ifneq (,$(NVIDIA_LEGACY))
+variant			 = legacy-$(NVIDIA_LEGACY)xx))
+variant_description	 = $(empty) ($(NVIDIA_LEGACY)xx legacy version)))
+endif
+ifneq (,$(NVIDIA_TESLA))
+variant			 = tesla-$(NVIDIA_TESLA)
+variant_description	 = $(empty) (Tesla $(NVIDIA_TESLA) version)
+endif
+ifeq (yes,$(NVIDIA_TESLA))
+variant			 = tesla
+variant_description	 = $(empty) (Tesla version)
+endif
 -variant		 = $(if $(variant),-$(variant))
 nvidia			 = nvidia$(-variant)
 nvidia_private		 = nvidia/$(if $(variant),$(variant),current)
-watch_version		?= $(or $(NVIDIA_TESLA),$(NVIDIA_LEGACY))
+watch_version		?= $(or $(filter-out yes,$(NVIDIA_TESLA)),$(NVIDIA_LEGACY))
 
 ALL_CONTROL	:= $(wildcard debian/nvidia-settings.*)
 VARIANT_CONTROL	:= $(wildcard debian/nvidia-settings$(-variant).*)
@@ -51,14 +66,7 @@ AUTOCLEAN	 = $(filter-out $(AUTOKEEP),$(AUTOGEN))
 %:
 	dh $@
 
-ifeq (,$(filter nvidia-settings,$(shell dh_listpackages)))
 override_dh_auto_build: $(AUTOGEN)
-	CC_ONLY_CFLAGS="$(CPPFLAGS)" dh_auto_build --sourcedirectory=src/libXNVCtrl
-
-override_dh_auto_install:
-else
-override_dh_auto_build: $(AUTOGEN)
-	CC_ONLY_CFLAGS="$(CPPFLAGS)" dh_auto_build --sourcedirectory=src/libXNVCtrl
 	CC_ONLY_CFLAGS="$(CPPFLAGS)" dh_auto_build -O--parallel
 	$(MAKE) -C samples
 
@@ -67,7 +75,9 @@ override_dh_auto_install:
 	install -m 0755 samples/$(OUTPUTDIR)/nv-control-dpy debian/tmp/usr/bin/
 	install -d -m 0755 debian/tmp/usr/share/icons/hicolor/128x128/apps/
 	install -m 0644 doc/nvidia-settings.png debian/tmp/usr/share/icons/hicolor/128x128/apps/nvidia-settings$(-variant).png
-endif
+
+override_dh_auto_clean:
+	dh_auto_clean -- BUILD_GTK3LIB=1
 
 execute_after_dh_auto_clean:
 	$(MAKE) -C samples clean

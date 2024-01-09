@@ -90,6 +90,7 @@ G_BEGIN_DECLS
 gboolean ctk_widget_is_sensitive(GtkWidget *w);
 gboolean ctk_widget_get_sensitive(GtkWidget *w);
 gboolean ctk_widget_get_visible(GtkWidget *w);
+void ctk_widget_set_visible(GtkWidget *w, gboolean visible);
 gboolean ctk_widget_is_drawable(GtkWidget *w);
 GdkWindow *ctk_widget_get_window(GtkWidget *w);
 void ctk_widget_get_allocation(GtkWidget *w, GtkAllocation *a);
@@ -97,6 +98,7 @@ gchar *ctk_widget_get_tooltip_text(GtkWidget *w);
 
 void ctk_widget_get_preferred_size(GtkWidget *w, GtkRequisition *r);
 GtkWidget *ctk_dialog_get_content_area(GtkDialog *d);
+GtkWidget *ctk_dialog_get_widget_for_response(GtkDialog *d, gint id);
 
 gdouble ctk_adjustment_get_page_increment(GtkAdjustment *a);
 gdouble ctk_adjustment_get_step_increment(GtkAdjustment *a);
@@ -110,6 +112,7 @@ void ctk_scrolled_window_add(GtkScrolledWindow *sw, GtkWidget *child);
 GtkWidget *ctk_statusbar_get_message_area(GtkStatusbar *statusbar);
 void ctk_cell_renderer_set_alignment(GtkCellRenderer *widget,
                                      gfloat x, gfloat y);
+void ctk_widget_set_halign_left(GtkWidget *w);
 
 GtkWidget *ctk_file_chooser_dialog_new(const gchar *title, GtkWindow *parent,
                                        GtkFileChooserAction action);
