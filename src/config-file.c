@@ -19,7 +19,7 @@
 
 /*
  * config-file.c - this source file contains functions for processing
- * the NVIDIA X Server control panel configuration file.
+ * the NVIDIA Settings control panel configuration file.
  *
  * The configuration file is simply a newline-separated list of
  * attribute strings, where the syntax of an attribute string is
@@ -260,7 +260,7 @@ int nv_write_config_file(const char *filename, const CtrlSystem *system,
     fprintf(stream, "# %s\n", filename);
     fprintf(stream, "#\n");
     fprintf(stream, "# Configuration file for nvidia-settings - the NVIDIA "
-            "X Server Settings utility\n");
+            "Settings utility\n");
 
     /* NOTE: ctime(3) generates a new line */
     
@@ -479,7 +479,73 @@ int nv_write_config_file(const char *filename, const CtrlSystem *system,
 
         free(prefix);
     }
-    
+
+    /*
+     * Write attributes addressable to GPU targets
+     */
+
+    for (node = system->targets[GPU_TARGET]; node; node = node->next) {
+        char *target_str = NULL;
+
+        t = node->t;
+
+        /* skip it if we don't have a handle for this gpu */
+
+        if (!t->h) {
+            continue;
+        }
+
+        /*
+         * Construct the prefix that will be printed in the config
+         * file in front of each attribute.
+         */
+
+        target_str = nvasprintf("[gpu:%d]", NvCtrlGetTargetId(t));
+        nvstrtoupper(target_str);
+
+        /* loop over all the entries in the table */
+
+        for (entry = 0; entry < attributeTableLen; entry++) {
+            const AttributeTableEntry *a = &attributeTable[entry];
+
+            /*
+             * skip all attributes that are not supposed to be written
+             * to the config file
+             */
+
+            if (a->flags.no_config_write) {
+                continue;
+            }
+
+            /* Only write out integer attributes, string attributes
+             * aren't written here.
+             */
+            if (a->type != CTRL_ATTRIBUTE_TYPE_INTEGER) {
+                continue;
+            }
+
+            /*
+             * Only write attributes that can be written for a GPU target
+             */
+
+            status = NvCtrlGetAttributePerms(t, a->type, a->attr, &perms);
+            if (status != NvCtrlSuccess || !(perms.write) ||
+                !(perms.valid_targets & CTRL_TARGET_PERM_BIT(GPU_TARGET)))  {
+                continue;
+            }
+
+            status = NvCtrlGetAttribute(t, a->attr, &val);
+            if (status != NvCtrlSuccess) {
+                continue;
+            }
+
+            fprintf(stream, "%s%c%s=%d\n", target_str,
+                    DISPLAY_NAME_SEPARATOR, a->name, val);
+        }
+
+        free(target_str);
+    }
+
     /*
      * loop the ParsedAttribute list, writing the attributes to file.
      * note that we ignore conf->include_display_name_in_config_file
@@ -774,7 +840,6 @@ ConfigPropertiesTableEntry configPropertyTable[] = {
     { "SliderTextEntries", CONFIG_PROPERTIES_SLIDER_TEXT_ENTRIES },
     { "IncludeDisplayNameInConfigFile",
       CONFIG_PROPERTIES_INCLUDE_DISPLAY_NAME_IN_CONFIG_FILE },
-    { "ShowQuitDialog", CONFIG_PROPERTIES_SHOW_QUIT_DIALOG },
     { "UpdateRulesOnProfileNameChange",
       CONFIG_PROPERTIES_UPDATE_RULES_ON_PROFILE_NAME_CHANGE },
     { NULL, 0 }
@@ -803,6 +868,7 @@ static int parse_config_property(const char *file, const char *line, ConfigPrope
     const char *ignoredProperties[] = {
         "TextureSharpen",
         "ToolTips",
+        "ShowQuitDialog"
     };
 
     no_spaces = remove_spaces(line);
@@ -945,7 +1011,6 @@ void init_config_properties(ConfigProperties *conf)
     conf->booleans = 
         (CONFIG_PROPERTIES_DISPLAY_STATUS_BAR |
          CONFIG_PROPERTIES_SLIDER_TEXT_ENTRIES |
-         CONFIG_PROPERTIES_SHOW_QUIT_DIALOG |
          CONFIG_PROPERTIES_UPDATE_RULES_ON_PROFILE_NAME_CHANGE);
 
     conf->locale = strdup(setlocale(LC_NUMERIC, NULL));

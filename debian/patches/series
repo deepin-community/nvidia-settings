@@ -1,8 +1,6 @@
 link-order.diff
-10_libxnvctrl_so_0.diff
 12_nvidia-settings.desktop.diff
 typos.diff
 kfreebsd-hurd.diff
 xorg.patch
-conditionalize-gtk2.patch
 include-Xlib.patch

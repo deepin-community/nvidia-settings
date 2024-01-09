@@ -1,14 +1,197 @@
-nvidia-settings (470.82.00-2) UNRELEASED; urgency=medium
+nvidia-settings (525.125.06-1) unstable; urgency=medium
 
-  * update
+  * New upstream release 525.125.06.
+  * New upstream release 525.105.17.
+    - Fixed a bug that could cause the nvidia-settings control panel to
+      crash when resetting the display layout.
+  * Upload to unstable.
 
- -- Debian NVIDIA Maintainers <pkg-nvidia-devel@lists.alioth.debian.org>  Fri, 29 Jul 2022 10:55:52 +0800
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 11 Jul 2023 23:27:45 +0200
 
-nvidia-settings (470.82.00-2) unstable; urgency=medium
+nvidia-settings (525.85.05-2) experimental; urgency=medium
 
-  * Add CFLAGS -fPIC.
+  * Move source package back to contrib.
+  * libxnvctrl0, libxnvctrl-dev are now built by src:libxnvctrl.
+  * Upload to experimental.
 
- -- wangxiangyu <wangxiangyu@uniontech.com>  Fri, 29 Jul 2022 10:49:48 +0100
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 18 Apr 2023 22:28:02 +0200
+
+nvidia-settings (525.85.05-1) unstable; urgency=medium
+
+  * New upstream release 525.85.05.
+    - Fixed a bug that prevented some controls in the nvidia-settings
+      control panel from working when running an X server as an
+      unprivileged user.
+  * New upstream release 525.78.01.
+    - Fixed a bug that could cause the nvidia-settings control panel to
+      crash when using a newer control panel with an older driver.
+  * New upstream release 525.53.
+    - Updated the nvidia-settings control panel to prevent the creation
+      of display layouts that exceed hardware size limitations when using
+      the SLI Mosaic configuration page, and to display a warning if such
+      a layout is created manually in the Display Configuration page.
+    - Removed the hard dependency on GTK 2 when building nvidia-settings
+      from source. nvidia-settings may now be built with support for GTK 2
+      only, GTK 3 only, or both GTK 2 and GTK 3.
+  * Refresh patches.
+  * Upload to unstable.
+
+ -- Andreas Beckmann <anbe@debian.org>  Thu, 09 Feb 2023 19:01:15 +0100
+
+nvidia-settings (520.56.06-1) unstable; urgency=medium
+
+  * New upstream release 520.56.06.
+  * Upload to unstable.
+
+ -- Andreas Beckmann <anbe@debian.org>  Thu, 02 Feb 2023 17:35:12 +0100
+
+nvidia-settings (515.86.01-1) unstable; urgency=medium
+
+  * New upstream release 515.86.01.
+    - Fixed a bug that caused nvidia-settings to find incorrect fan speed
+      ranges on some GPUs.  Lower-level layers of the driver protected
+      the hardware from programming incorrect fan speeds, so the symptom
+      was only incorrect reporting.  Now, reporting in nvidia-settings
+      matches what actually gets programmed in hardware.
+  * Upload to unstable.
+
+ -- Andreas Beckmann <anbe@debian.org>  Sat, 28 Jan 2023 03:17:12 +0100
+
+nvidia-settings (515.76-1) experimental; urgency=medium
+
+  * New upstream release 515.76.
+  * Refresh patches.
+  * Build and ship the Wayland variant in addition to GTK+ 3.
+  * Upload to experimental.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 11 Oct 2022 14:15:22 +0200
+
+nvidia-settings (510.108.03-1) unstable; urgency=medium
+
+  * New upstream release 510.108.03.
+  * Bump Standards-Version to 4.6.2. No changes needed.
+
+ -- Andreas Beckmann <anbe@debian.org>  Thu, 05 Jan 2023 13:54:35 +0100
+
+nvidia-settings (510.85.02-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Andreas Beckmann <anbe@debian.org>  Wed, 05 Oct 2022 15:25:19 +0200
+
+nvidia-settings (510.85.02-1) experimental; urgency=medium
+
+  * New upstream release 510.85.02.
+  * Merge changes from 470.141.03-1.
+
+ -- Andreas Beckmann <anbe@debian.org>  Wed, 10 Aug 2022 15:29:29 +0200
+
+nvidia-settings (510.73.05-1) experimental; urgency=medium
+
+  * New upstream release 510.73.05.
+  * Merge changes from 470.129.06-1.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 05 Jul 2022 08:10:59 +0200
+
+nvidia-settings (510.68.02-1) experimental; urgency=medium
+
+  * New upstream release 510.68.02.
+
+ -- Luca Boccassi <bluca@debian.org>  Mon, 02 May 2022 17:42:25 +0100
+
+nvidia-settings (510.60.02-1) experimental; urgency=medium
+
+  * New upstream release 510.60.02.
+
+  [ Helmut Grohne ]
+  * Improve cross building: Pass more build tools to make. (Closes:
+    #1005958)
+
+ -- Luca Boccassi <bluca@debian.org>  Sat, 26 Mar 2022 11:41:46 +0000
+
+nvidia-settings (510.54-1) experimental; urgency=medium
+
+  * New upstream release 510.54.
+    - Fixed a bug that caused the nvidia-settings control panel to print
+      spurious error messages.
+
+ -- Luca Boccassi <bluca@debian.org>  Mon, 14 Mar 2022 00:02:26 +0000
+
+nvidia-settings (510.47.03-1) experimental; urgency=medium
+
+  * New upstream release 510.47.03.
+  * New upstream release 510.39.01.
+    - Fixed a bug that caused the nvidia-settings control panel to report
+      inaccurate ECC error counts, and completely prevented the reporting
+      of aggregate ECC error counts. ECC error counts reported by nvidia-smi
+      were not affected.
+    - Added a GUI control for setting Image Sharpening values in the app
+      profiles page of the nvidia-settings control panel.
+    - Added support for nvidia-settings to use NVML for NV-CONTROL attributes.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 08 Feb 2022 11:13:57 +0100
+
+nvidia-settings (495.46-1) experimental; urgency=medium
+
+  * New upstream release 495.46.
+  * Upload to experimental.
+
+ -- Andreas Beckmann <anbe@debian.org>  Mon, 17 Jan 2022 02:48:51 +0100
+
+nvidia-settings (470.141.03-1~deb11u1) bullseye; urgency=medium
+
+  * Rebuild for bullseye.
+
+ -- Andreas Beckmann <anbe@debian.org>  Fri, 02 Sep 2022 10:58:58 +0200
+
+nvidia-settings (470.141.03-1) unstable; urgency=medium
+
+  * New upstream release 470.141.03.
+    - Fixed a bug that prevented nvidia-settings from accurately reflecting
+      changes to some configuration properties.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 09 Aug 2022 14:45:12 +0200
+
+nvidia-settings (470.129.06-1) unstable; urgency=medium
+
+  * New upstream release 470.129.06.
+  * Bump Standards-Version to 4.6.1. No changes needed.
+  * Update Lintian overrides.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 28 Jun 2022 04:14:03 +0200
+
+nvidia-settings (470.103.01-2) unstable; urgency=medium
+
+  [ Luca Boccassi ]
+  * Add salsa-ci.yml.
+
+  [ Helmut Grohne ]
+  * Improve cross building: Pass more build tools to make.  (Closes: #1005958)
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster:
+    + Build-Depends: Drop versioned constraint on libvdpau-dev.
+
+ -- Andreas Beckmann <anbe@debian.org>  Thu, 14 Apr 2022 16:22:46 +0200
+
+nvidia-settings (470.103.01-1~deb11u1) bullseye; urgency=medium
+
+  * Rebuild for bullseye.
+
+ -- Andreas Beckmann <anbe@debian.org>  Sun, 20 Mar 2022 21:55:14 +0100
+
+nvidia-settings (470.103.01-1) unstable; urgency=medium
+
+  * New upstream release 470.103.01.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 08 Feb 2022 09:45:25 +0100
+
+nvidia-settings (470.94-1) unstable; urgency=medium
+
+  * New upstream release 470.94.
+  * Update Lintian overrides.
+
+ -- Andreas Beckmann <anbe@debian.org>  Fri, 14 Jan 2022 15:00:24 +0100
 
 nvidia-settings (470.82.00-1) unstable; urgency=medium
 

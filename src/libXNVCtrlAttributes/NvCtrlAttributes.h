@@ -44,6 +44,7 @@ typedef enum {
     THERMAL_SENSOR_TARGET,
     NVIDIA_3D_VISION_PRO_TRANSCEIVER_TARGET,
     DISPLAY_TARGET,
+    MUX_TARGET,
 
     MAX_TARGET_TYPES,
     INVALID_TARGET = -1
@@ -138,6 +139,8 @@ struct _CtrlSystem {
     char *display;  /* string for XOpenDisplay */
     Display *dpy;   /* X display connection */
     Bool has_nv_control;
+    Bool has_nvml;
+    void *wayland_output;
 
     CtrlTargetNode *targets[MAX_TARGET_TYPES]; /* Shadows targetTypeTable */
     CtrlTargetNode *physical_screens;
@@ -281,7 +284,9 @@ typedef enum {
 
 #define NV_CTRL_ATTR_NVML_GPU_GRID_LICENSABLE_FEATURES          (NV_CTRL_ATTR_NVML_BASE + 2)
 
-#define NV_CTRL_ATTR_NVML_LAST_ATTRIBUTE (NV_CTRL_ATTR_NVML_GPU_GRID_LICENSABLE_FEATURES)
+#define NV_CTRL_ATTR_NVML_GSP_FIRMWARE_MODE                     (NV_CTRL_ATTR_NVML_BASE + 3)
+
+#define NV_CTRL_ATTR_NVML_LAST_ATTRIBUTE (NV_CTRL_ATTR_NVML_GSP_FIRMWARE_MODE)
 
 #define NV_CTRL_ATTR_LAST_ATTRIBUTE \
         (NV_CTRL_ATTR_NVML_LAST_ATTRIBUTE)
@@ -571,6 +576,17 @@ typedef struct {
 #define NV_CTRL_STRING_XV_VERSION         (NV_CTRL_STRING_XV_BASE)
 
 #define NV_CTRL_STRING_XV_LAST_ATTRIBUTE  (NV_CTRL_STRING_XV_VERSION)
+
+
+/*
+ * Additional XVideo string attributes for NvCtrlGetStringDisplayAttribute();
+ */
+
+#define NV_CTRL_STRING_NVML_BASE            (NV_CTRL_STRING_XV_LAST_ATTRIBUTE + 1)
+
+#define NV_CTRL_STRING_NVML_VERSION         (NV_CTRL_STRING_NVML_BASE)
+
+#define NV_CTRL_STRING_NVML_LAST_ATTRIBUTE  (NV_CTRL_STRING_NVML_VERSION)
 
 
 

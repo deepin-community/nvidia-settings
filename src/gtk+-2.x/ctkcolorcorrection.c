@@ -82,7 +82,7 @@ static void
 flush_attribute_channel_values (CtkColorCorrection *, gint, gint);
 
 static void
-ctk_color_correction_class_init(CtkColorCorrectionClass *);
+ctk_color_correction_class_init(CtkColorCorrectionClass *, gpointer);
 
 static void ctk_color_correction_finalize(GObject *);
 
@@ -163,7 +163,8 @@ GType ctk_color_correction_get_type(
 
 static void
 ctk_color_correction_class_init(CtkColorCorrectionClass
-                                *ctk_color_correction_class)
+                                *ctk_color_correction_class,
+                                gpointer class_data)
 {
     GObjectClass *gobject_class = (GObjectClass *)ctk_color_correction_class;
 
@@ -1177,6 +1178,10 @@ void ctk_color_correction_tab_help(GtkTextBuffer *b, GtkTextIter *i,
                                    gboolean randr)
 {
     ctk_help_heading(b, i, "Color Correction");
+    ctk_help_para(b, i, "These controls and values are used to create "
+                  "a color profile for this display. It is not currently "
+                  "possible to provide the current color correction values "
+                  "if they have been changed by an external tool.");
 
     ctk_help_term(b, i, "Active Color Channel");
     ctk_help_para(b, i, "%s", __active_color_help);
