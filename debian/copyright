@@ -102,7 +102,7 @@ License: Expat
 Files: debian/*
 Copyright: © 2004-2010 Randall Donald <rdonald@debian.org>
            © 2009-2010 Fathi Boudra <fabo@debian.org>
-           © 2011-2023 Andreas Beckmann <anbe@debian.org>
+           © 2011-2024 Andreas Beckmann <anbe@debian.org>
            © 2017      Luca Boccassi <bluca@debian.org>
 License: GPL-2
 

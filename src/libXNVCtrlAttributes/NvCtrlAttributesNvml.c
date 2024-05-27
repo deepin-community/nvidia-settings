@@ -167,8 +167,8 @@ static void UnloadNvml(NvCtrlNvmlAttributes *nvml)
         return;
     }
 
-    if (nvml->lib.shutdown != NULL) {
-        nvmlReturn_t ret = nvml->lib.shutdown();
+    if (nvml->lib.Shutdown != NULL) {
+        nvmlReturn_t ret = nvml->lib.Shutdown();
         if (ret != NVML_SUCCESS) {
             printNvmlError(ret);
         }
@@ -206,62 +206,72 @@ static Bool LoadNvml(NvCtrlNvmlAttributes *nvml)
         goto fail;
     }
 
-#define GET_SYMBOL(_required, _proc, _name)             \
-    nvml->lib._proc = dlsym(nvml->lib.handle, _name);   \
-    if (nvml->lib._proc == NULL) {                      \
-        if (_required) {                                \
-            goto fail;                                  \
-        } else {                                        \
-            nvml->lib._proc = (void*) NvmlStubFunction; \
-        }                                               \
+#define STRINGIFY_SYMBOL(_symbol) #_symbol
+
+#define EXPAND_STRING(_symbol) STRINGIFY_SYMBOL(_symbol)
+
+#define GET_SYMBOL(_required, _proc)                                           \
+    nvml->lib._proc = dlsym(nvml->lib.handle, "nvml" STRINGIFY_SYMBOL(_proc)); \
+    nvml->lib._proc = dlsym(nvml->lib.handle, EXPAND_STRING(nvml ## _proc));   \
+    if (nvml->lib._proc == NULL) {                                             \
+        if (_required) {                                                       \
+            goto fail;                                                         \
+        } else {                                                               \
+            nvml->lib._proc = (void*) NvmlStubFunction;                        \
+        }                                                                      \
     }
 
-    GET_SYMBOL(_REQUIRED, init,                           "nvmlInit");
-    GET_SYMBOL(_REQUIRED, shutdown,                       "nvmlShutdown");
-    GET_SYMBOL(_REQUIRED, deviceGetHandleByIndex,         "nvmlDeviceGetHandleByIndex");
-    GET_SYMBOL(_REQUIRED, deviceGetUUID,                  "nvmlDeviceGetUUID");
-    GET_SYMBOL(_REQUIRED, deviceGetCount,                 "nvmlDeviceGetCount");
-    GET_SYMBOL(_REQUIRED, deviceGetTemperature,           "nvmlDeviceGetTemperature");
-    GET_SYMBOL(_REQUIRED, deviceGetName,                  "nvmlDeviceGetName");
-    GET_SYMBOL(_REQUIRED, deviceGetVbiosVersion,          "nvmlDeviceGetVbiosVersion");
-    GET_SYMBOL(_REQUIRED, deviceGetMemoryInfo,            "nvmlDeviceGetMemoryInfo");
-    GET_SYMBOL(_REQUIRED, deviceGetPciInfo,               "nvmlDeviceGetPciInfo");
-    GET_SYMBOL(_REQUIRED, deviceGetCurrPcieLinkWidth,     "nvmlDeviceGetCurrPcieLinkWidth");
-    GET_SYMBOL(_REQUIRED, deviceGetMaxPcieLinkGeneration, "nvmlDeviceGetMaxPcieLinkGeneration");
-    GET_SYMBOL(_REQUIRED, deviceGetMaxPcieLinkWidth,      "nvmlDeviceGetMaxPcieLinkWidth");
-    GET_SYMBOL(_REQUIRED, deviceGetVirtualizationMode,    "nvmlDeviceGetVirtualizationMode");
-    GET_SYMBOL(_REQUIRED, deviceGetUtilizationRates,      "nvmlDeviceGetUtilizationRates");
-    GET_SYMBOL(_REQUIRED, deviceGetTemperatureThreshold,  "nvmlDeviceGetTemperatureThreshold");
-    GET_SYMBOL(_REQUIRED, deviceGetFanSpeed_v2,           "nvmlDeviceGetFanSpeed_v2");
-    GET_SYMBOL(_REQUIRED, systemGetDriverVersion,         "nvmlSystemGetDriverVersion");
-    GET_SYMBOL(_REQUIRED, deviceGetEccMode,               "nvmlDeviceGetEccMode");
-    GET_SYMBOL(_REQUIRED, deviceSetEccMode,               "nvmlDeviceSetEccMode");
-    GET_SYMBOL(_REQUIRED, deviceGetTotalEccErrors,        "nvmlDeviceGetTotalEccErrors");
-    GET_SYMBOL(_REQUIRED, deviceClearEccErrorCounts,      "nvmlDeviceClearEccErrorCounts");
-    GET_SYMBOL(_REQUIRED, systemGetNVMLVersion,           "nvmlSystemGetNVMLVersion");
-    GET_SYMBOL(_REQUIRED, deviceGetMemoryErrorCounter,    "nvmlDeviceGetMemoryErrorCounter");
-    GET_SYMBOL(_REQUIRED, deviceGetNumGpuCores,           "nvmlDeviceGetNumGpuCores");
-    GET_SYMBOL(_REQUIRED, deviceGetMemoryBusWidth,        "nvmlDeviceGetMemoryBusWidth");
-    GET_SYMBOL(_REQUIRED, deviceGetIrqNum,                "nvmlDeviceGetIrqNum");
-    GET_SYMBOL(_REQUIRED, deviceGetPowerSource,           "nvmlDeviceGetPowerSource");
-    GET_SYMBOL(_REQUIRED, deviceGetNumFans,               "nvmlDeviceGetNumFans");
-    GET_SYMBOL(_REQUIRED, deviceGetDefaultEccMode,        "nvmlDeviceGetDefaultEccMode");
+    GET_SYMBOL(_REQUIRED, Init);
+    GET_SYMBOL(_REQUIRED, Shutdown);
+    GET_SYMBOL(_REQUIRED, DeviceGetHandleByIndex);
+    GET_SYMBOL(_REQUIRED, DeviceGetUUID);
+    GET_SYMBOL(_REQUIRED, DeviceGetCount);
+    GET_SYMBOL(_REQUIRED, DeviceGetTemperature);
+    GET_SYMBOL(_REQUIRED, DeviceGetName);
+    GET_SYMBOL(_REQUIRED, DeviceGetVbiosVersion);
+    GET_SYMBOL(_REQUIRED, DeviceGetMemoryInfo);
+    GET_SYMBOL(_REQUIRED, DeviceGetPciInfo);
+    GET_SYMBOL(_REQUIRED, DeviceGetCurrPcieLinkWidth);
+    GET_SYMBOL(_REQUIRED, DeviceGetMaxPcieLinkGeneration);
+    GET_SYMBOL(_REQUIRED, DeviceGetMaxPcieLinkWidth);
+    GET_SYMBOL(_REQUIRED, DeviceGetVirtualizationMode);
+    GET_SYMBOL(_REQUIRED, DeviceGetUtilizationRates);
+    GET_SYMBOL(_REQUIRED, DeviceGetTemperatureThreshold);
+    GET_SYMBOL(_REQUIRED, DeviceGetFanSpeed_v2);
+    GET_SYMBOL(_REQUIRED, SystemGetDriverVersion);
+    GET_SYMBOL(_REQUIRED, DeviceGetEccMode);
+    GET_SYMBOL(_REQUIRED, DeviceSetEccMode);
+    GET_SYMBOL(_REQUIRED, DeviceGetTotalEccErrors);
+    GET_SYMBOL(_REQUIRED, DeviceClearEccErrorCounts);
+    GET_SYMBOL(_REQUIRED, SystemGetNVMLVersion);
+    GET_SYMBOL(_REQUIRED, DeviceGetMemoryErrorCounter);
+    GET_SYMBOL(_REQUIRED, DeviceGetNumGpuCores);
+    GET_SYMBOL(_REQUIRED, DeviceGetMemoryBusWidth);
+    GET_SYMBOL(_REQUIRED, DeviceGetIrqNum);
+    GET_SYMBOL(_REQUIRED, DeviceGetPowerSource);
+    GET_SYMBOL(_REQUIRED, DeviceGetNumFans);
+    GET_SYMBOL(_REQUIRED, DeviceGetDefaultEccMode);
     
 /* Do not fail with older drivers */
     
-    GET_SYMBOL(_OPTIONAL, deviceGetGridLicensableFeatures, "nvmlDeviceGetGridLicensableFeatures_v4");
-    GET_SYMBOL(_OPTIONAL, deviceGetGspFirmwareMode,        "nvmlDeviceGetGspFirmwareMode");
-    GET_SYMBOL(_OPTIONAL, deviceGetMemoryInfo_v2,          "nvmlDeviceGetMemoryInfo_v2");
-    GET_SYMBOL(_OPTIONAL, deviceSetFanSpeed_v2,            "nvmlDeviceSetFanSpeed_v2");
-    GET_SYMBOL(_OPTIONAL, deviceGetTargetFanSpeed,         "nvmlDeviceGetTargetFanSpeed");
-    GET_SYMBOL(_OPTIONAL, deviceGetMinMaxFanSpeed,         "nvmlDeviceGetMinMaxFanSpeed");
-    GET_SYMBOL(_OPTIONAL, deviceSetFanControlPolicy,       "nvmlDeviceSetFanControlPolicy");
-    GET_SYMBOL(_OPTIONAL, deviceGetFanControlPolicy_v2,    "nvmlDeviceGetFanControlPolicy_v2");
-    GET_SYMBOL(_OPTIONAL, deviceSetDefaultFanSpeed_v2,     "nvmlDeviceSetDefaultFanSpeed_v2");
+    GET_SYMBOL(_OPTIONAL, DeviceGetGridLicensableFeatures);
+    GET_SYMBOL(_OPTIONAL, DeviceGetGspFirmwareMode);
+    GET_SYMBOL(_OPTIONAL, DeviceGetMemoryInfo_v2);
+    GET_SYMBOL(_OPTIONAL, DeviceSetFanSpeed_v2);
+    GET_SYMBOL(_OPTIONAL, DeviceGetTargetFanSpeed);
+    GET_SYMBOL(_OPTIONAL, DeviceGetMinMaxFanSpeed);
+    GET_SYMBOL(_OPTIONAL, DeviceSetFanControlPolicy);
+    GET_SYMBOL(_OPTIONAL, DeviceGetFanControlPolicy_v2);
+    GET_SYMBOL(_OPTIONAL, DeviceSetDefaultFanSpeed_v2);
+    GET_SYMBOL(_OPTIONAL, DeviceGetPowerUsage);
+    GET_SYMBOL(_OPTIONAL, DeviceGetPowerManagementLimitConstraints);
+    GET_SYMBOL(_OPTIONAL, DeviceGetPowerManagementDefaultLimit);
 
 #undef GET_SYMBOL
+#undef EXPAND_STRING
+#undef STRINGIFY_SYMBOL
 
-    ret = nvml->lib.init();
+    ret = nvml->lib.Init();
 
     if (ret != NVML_SUCCESS) {
         printNvmlError(ret);
@@ -326,11 +336,11 @@ static Bool matchNvCtrlWithNvmlIds(const NvCtrlNvmlAttributes *nvml,
 
             /* Look for the same UUID through NVML */
             for (j = 0; j < nvmlGpuCount; j++) {
-                if (NVML_SUCCESS != nvml->lib.deviceGetHandleByIndex(j, &device)) {
+                if (NVML_SUCCESS != nvml->lib.DeviceGetHandleByIndex(j, &device)) {
                     continue;
                 }
 
-                if (NVML_SUCCESS != nvml->lib.deviceGetUUID(device, nvmlUUID,
+                if (NVML_SUCCESS != nvml->lib.DeviceGetUUID(device, nvmlUUID,
                                                             MAX_NVML_STR_LEN)) {
                     continue;
                 }
@@ -388,7 +398,7 @@ NvCtrlNvmlAttributes *NvCtrlInitNvmlAttributes(NvCtrlAttributePrivateHandle *h)
     }
 
     /* Initialize NVML attributes */
-    if (nvml->lib.deviceGetCount(&count) != NVML_SUCCESS) {
+    if (nvml->lib.DeviceGetCount(&count) != NVML_SUCCESS) {
         goto fail;
     }
     nvml->deviceCount = count;
@@ -416,7 +426,7 @@ NvCtrlNvmlAttributes *NvCtrlInitNvmlAttributes(NvCtrlAttributePrivateHandle *h)
     for (i = 0; i < count; i++) {
         int devIdx = nvctrlToNvmlId[i];
         nvmlDevice_t device;
-        nvmlReturn_t ret = nvml->lib.deviceGetHandleByIndex(devIdx, &device);
+        nvmlReturn_t ret = nvml->lib.DeviceGetHandleByIndex(devIdx, &device);
         if (ret == NVML_SUCCESS) {
             unsigned int temp;
             unsigned int fans;
@@ -426,7 +436,7 @@ NvCtrlNvmlAttributes *NvCtrlInitNvmlAttributes(NvCtrlAttributePrivateHandle *h)
              *     check for nvmlDeviceGetTemperature() success to figure
              *     out if that sensor is available.
              */
-            ret = nvml->lib.deviceGetTemperature(device, NVML_TEMPERATURE_GPU,
+            ret = nvml->lib.DeviceGetTemperature(device, NVML_TEMPERATURE_GPU,
                                                  &temp);
             if (ret == NVML_SUCCESS) {
                 if ((h->target_type == THERMAL_SENSOR_TARGET) &&
@@ -435,11 +445,11 @@ NvCtrlNvmlAttributes *NvCtrlInitNvmlAttributes(NvCtrlAttributePrivateHandle *h)
                     nvml->deviceIdx = devIdx;
                 }
 
-                nvml->sensorCountPerGPU[i] = 1;
+                nvml->sensorCountPerGPU[devIdx] = 1;
                 nvml->sensorCount++;
             }
 
-            ret = nvml->lib.deviceGetNumFans(device, &fans);
+            ret = nvml->lib.DeviceGetNumFans(device, &fans);
             if (ret == NVML_SUCCESS) {
                 if ((h->target_type == COOLER_TARGET) &&
                     (h->target_id == nvml->coolerCount)) {
@@ -447,7 +457,7 @@ NvCtrlNvmlAttributes *NvCtrlInitNvmlAttributes(NvCtrlAttributePrivateHandle *h)
                     nvml->deviceIdx = devIdx;
                 }
 
-                nvml->coolerCountPerGPU[i] = fans;
+                nvml->coolerCountPerGPU[devIdx] = fans;
                 nvml->coolerCount += fans;
             }
         }
@@ -558,11 +568,11 @@ static ReturnStatus NvCtrlNvmlGetGeneralStringAttribute(const CtrlTarget *ctrl_t
 
     switch (attr) {
         case NV_CTRL_STRING_NVIDIA_DRIVER_VERSION:
-            ret = h->nvml->lib.systemGetDriverVersion(res, MAX_NVML_STR_LEN);
+            ret = h->nvml->lib.SystemGetDriverVersion(res, MAX_NVML_STR_LEN);
             break;
 
         case NV_CTRL_STRING_NVML_VERSION:
-            ret = h->nvml->lib.systemGetNVMLVersion(res, MAX_NVML_STR_LEN);
+            ret = h->nvml->lib.SystemGetNVMLVersion(res, MAX_NVML_STR_LEN);
             break;
 
         default:
@@ -601,19 +611,19 @@ static ReturnStatus NvCtrlNvmlGetGPUStringAttribute(const CtrlTarget *ctrl_targe
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_STRING_PRODUCT_NAME:
-                ret = nvml->lib.deviceGetName(device, res, MAX_NVML_STR_LEN);
+                ret = nvml->lib.DeviceGetName(device, res, MAX_NVML_STR_LEN);
                 break;
 
             case NV_CTRL_STRING_VBIOS_VERSION:
-                ret = nvml->lib.deviceGetVbiosVersion(device, res, MAX_NVML_STR_LEN);
+                ret = nvml->lib.DeviceGetVbiosVersion(device, res, MAX_NVML_STR_LEN);
                 break;
 
             case NV_CTRL_STRING_GPU_UUID:
-                ret = nvml->lib.deviceGetUUID(device, res, MAX_NVML_STR_LEN);
+                ret = nvml->lib.DeviceGetUUID(device, res, MAX_NVML_STR_LEN);
                 break;
 
             case NV_CTRL_STRING_GPU_UTILIZATION:
@@ -628,7 +638,7 @@ static ReturnStatus NvCtrlNvmlGetGPUStringAttribute(const CtrlTarget *ctrl_targe
                     return NvCtrlNotSupported;
                 }
 
-                ret = nvml->lib.deviceGetUtilizationRates(device, &util);
+                ret = nvml->lib.DeviceGetUtilizationRates(device, &util);
 
                 if (ret != NVML_SUCCESS) {
                     break;
@@ -734,7 +744,7 @@ static ReturnStatus NvCtrlNvmlSetGPUStringAttribute(CtrlTarget *ctrl_target,
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_STRING_GPU_CURRENT_CLOCK_FREQS:
@@ -822,16 +832,16 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_TOTAL_DEDICATED_GPU_MEMORY:
             case NV_CTRL_USED_DEDICATED_GPU_MEMORY:
                 {
-                    if (nvml->lib.deviceGetMemoryInfo_v2) {
+                    if (nvml->lib.DeviceGetMemoryInfo_v2) {
                         nvmlMemory_v2_t memory;
                         memory.version = nvmlMemory_v2;
-                        ret = nvml->lib.deviceGetMemoryInfo_v2(device, &memory);
+                        ret = nvml->lib.DeviceGetMemoryInfo_v2(device, &memory);
                         if (ret == NVML_SUCCESS) {
                             switch (attr) {
                                 case NV_CTRL_TOTAL_DEDICATED_GPU_MEMORY:
@@ -844,7 +854,7 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
                         }
                     } else {
                         nvmlMemory_t memory;
-                        ret = nvml->lib.deviceGetMemoryInfo(device, &memory);
+                        ret = nvml->lib.DeviceGetMemoryInfo(device, &memory);
                         if (ret == NVML_SUCCESS) {
                             switch (attr) {
                                 case NV_CTRL_TOTAL_DEDICATED_GPU_MEMORY:
@@ -866,7 +876,7 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
             case NV_CTRL_PCI_ID:
                 {
                     nvmlPciInfo_t pci;
-                    ret = nvml->lib.deviceGetPciInfo(device, &pci);
+                    ret = nvml->lib.DeviceGetPciInfo(device, &pci);
                     if (ret == NVML_SUCCESS) {
                         switch (attr) {
                             case NV_CTRL_PCI_DOMAIN:
@@ -899,25 +909,25 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
                 break;
 
             case NV_CTRL_GPU_PCIE_GENERATION:
-                ret = nvml->lib.deviceGetMaxPcieLinkGeneration(device, &res);
+                ret = nvml->lib.DeviceGetMaxPcieLinkGeneration(device, &res);
                 break;
 
             case NV_CTRL_GPU_PCIE_CURRENT_LINK_WIDTH:
-                ret = nvml->lib.deviceGetCurrPcieLinkWidth(device, &res);
+                ret = nvml->lib.DeviceGetCurrPcieLinkWidth(device, &res);
                 break;
             case NV_CTRL_GPU_PCIE_MAX_LINK_WIDTH:
-                ret = nvml->lib.deviceGetMaxPcieLinkWidth(device, &res);
+                ret = nvml->lib.DeviceGetMaxPcieLinkWidth(device, &res);
                 break;
             case NV_CTRL_GPU_SLOWDOWN_THRESHOLD:
-                ret = nvml->lib.deviceGetTemperatureThreshold(device,
+                ret = nvml->lib.DeviceGetTemperatureThreshold(device,
                           NVML_TEMPERATURE_THRESHOLD_SLOWDOWN ,&res);
                 break;
             case NV_CTRL_GPU_SHUTDOWN_THRESHOLD:
-                ret = nvml->lib.deviceGetTemperatureThreshold(device,
+                ret = nvml->lib.DeviceGetTemperatureThreshold(device,
                           NVML_TEMPERATURE_THRESHOLD_SHUTDOWN ,&res);
                 break;
             case NV_CTRL_GPU_CORE_TEMPERATURE:
-                ret = nvml->lib.deviceGetTemperature(device,
+                ret = nvml->lib.DeviceGetTemperature(device,
                                                      NVML_TEMPERATURE_GPU,
                                                      &res);
                 break;
@@ -926,7 +936,7 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
             case NV_CTRL_GPU_ECC_SUPPORTED:
                 {
                     nvmlEnableState_t current, pending;
-                    ret = nvml->lib.deviceGetEccMode(device, &current, &pending);
+                    ret = nvml->lib.DeviceGetEccMode(device, &current, &pending);
                     switch (attr) {
                         case NV_CTRL_GPU_ECC_CONFIGURATION_SUPPORTED:
                             res = (ret == NVML_SUCCESS) ?
@@ -951,7 +961,7 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
             case NV_CTRL_GPU_ECC_STATUS:
                 {
                     nvmlEnableState_t current, pending;
-                    ret = nvml->lib.deviceGetEccMode(device, &current, &pending);
+                    ret = nvml->lib.DeviceGetEccMode(device, &current, &pending);
                     if (ret == NVML_SUCCESS) {
                         switch (attr) {
                             case NV_CTRL_GPU_ECC_STATUS:
@@ -968,7 +978,7 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
             case NV_CTRL_GPU_ECC_DEFAULT_CONFIGURATION:
                 {
                     nvmlEnableState_t defaultMode;
-                    ret = nvml->lib.deviceGetDefaultEccMode(device, &defaultMode);
+                    ret = nvml->lib.DeviceGetDefaultEccMode(device, &defaultMode);
                     if (ret == NVML_SUCCESS) {
                         res = defaultMode;
                     }
@@ -1002,7 +1012,7 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
                             break;
                     }
 
-                    ret = nvml->lib.deviceGetTotalEccErrors(device, errorType,
+                    ret = nvml->lib.DeviceGetTotalEccErrors(device, errorType,
                                                         counterType, &eccCounts);
                     if (ret == NVML_SUCCESS) {
                         if (val) {
@@ -1014,30 +1024,48 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
                 break;
 
             case NV_CTRL_GPU_CORES:
-                ret = nvml->lib.deviceGetNumGpuCores(device, &res);
+                ret = nvml->lib.DeviceGetNumGpuCores(device, &res);
                 break;
             case NV_CTRL_GPU_MEMORY_BUS_WIDTH:
-                ret = nvml->lib.deviceGetMemoryBusWidth(device, &res);
+                ret = nvml->lib.DeviceGetMemoryBusWidth(device, &res);
                 break;
             case NV_CTRL_IRQ:
-                ret = nvml->lib.deviceGetIrqNum(device, &res);
+                ret = nvml->lib.DeviceGetIrqNum(device, &res);
                 break;
             case NV_CTRL_GPU_POWER_SOURCE:
                 assert(NV_CTRL_GPU_POWER_SOURCE_AC == NVML_POWER_SOURCE_AC);
                 assert(NV_CTRL_GPU_POWER_SOURCE_BATTERY == NVML_POWER_SOURCE_BATTERY);
-                ret = nvml->lib.deviceGetPowerSource(device, &res);
+                assert(NV_CTRL_GPU_POWER_SOURCE_UNDERSIZED == NVML_POWER_SOURCE_UNDERSIZED);
+                ret = nvml->lib.DeviceGetPowerSource(device, &res);
                 break;
+            case NV_CTRL_ATTR_NVML_GPU_GET_POWER_USAGE:
+                ret = nvml->lib.DeviceGetPowerUsage(device, &res);
+                break;
+
+            case NV_CTRL_ATTR_NVML_GPU_MAX_TGP:
+                {
+                    unsigned int minLimit;
+                    ret = nvml->lib.DeviceGetPowerManagementLimitConstraints(device,
+                                                                             &minLimit, &res);
+                }
+                break;
+
+            case NV_CTRL_ATTR_NVML_GPU_DEFAULT_TGP:
+                ret = nvml->lib.DeviceGetPowerManagementDefaultLimit(device, &res);
+                break;
+
             case NV_CTRL_GPU_COOLER_MANUAL_CONTROL:
                 {
                     nvmlFanControlPolicy_t policy;
+                    int count = nvml->coolerCountPerGPU[nvml->deviceIdx];
 
                     /* Return early if GPU has no fan */
-                    if (nvml->coolerCount == 0) {
+                    if (count == 0) {
                         return NvCtrlNotSupported;
                     }
 
                     /* Get cooler control policy */
-                    ret = nvml->lib.deviceGetFanControlPolicy_v2(device, 0, &policy);
+                    ret = nvml->lib.DeviceGetFanControlPolicy_v2(device, 0, &policy);
                     res = (policy == NVML_FAN_POLICY_MANUAL) ?
                         NV_CTRL_GPU_COOLER_MANUAL_CONTROL_TRUE :
                         NV_CTRL_GPU_COOLER_MANUAL_CONTROL_FALSE;
@@ -1094,20 +1122,17 @@ static ReturnStatus NvCtrlNvmlGetGPUAttribute(const CtrlTarget *ctrl_target,
             case NV_CTRL_ATTR_NVML_GPU_VIRTUALIZATION_MODE:
                 {
                     nvmlGpuVirtualizationMode_t mode;
-                    ret = nvml->lib.deviceGetVirtualizationMode(device, &mode);
+                    ret = nvml->lib.DeviceGetVirtualizationMode(device, &mode);
                     res = mode;
                 }
                 break;
 
             case NV_CTRL_ATTR_NVML_GPU_GRID_LICENSE_SUPPORTED:
-                if (nvml->lib.deviceGetGridLicensableFeatures) {
+                {
                     nvmlGridLicensableFeatures_t gridLicensableFeatures;
-                    ret = nvml->lib.deviceGetGridLicensableFeatures(device,
+                    ret = nvml->lib.DeviceGetGridLicensableFeatures(device,
                                                           &gridLicensableFeatures);
                     res = !!(gridLicensableFeatures.isGridLicenseSupported);
-                } else {
-                    /* return NvCtrlNotSupported against older driver */
-                    ret = NVML_ERROR_FUNCTION_NOT_FOUND;
                 }
 
                 break;
@@ -1146,22 +1171,19 @@ static ReturnStatus NvCtrlNvmlGetGridLicensableFeatures(const CtrlTarget *ctrl_t
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
         if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_ATTR_NVML_GPU_GRID_LICENSABLE_FEATURES:
-                if (nvml->lib.deviceGetGridLicensableFeatures) {
+                {
                     nvmlGridLicensableFeatures_t *gridLicensableFeatures;
                     gridLicensableFeatures = (nvmlGridLicensableFeatures_t *)nvalloc(sizeof(nvmlGridLicensableFeatures_t));
-                    ret = nvml->lib.deviceGetGridLicensableFeatures(device,
+                    ret = nvml->lib.DeviceGetGridLicensableFeatures(device,
                                                                     gridLicensableFeatures);
                     if (ret == NVML_SUCCESS) {
                         *val = gridLicensableFeatures;
                         return NvCtrlSuccess;
                     }
-                } else {
-                    /* return NvCtrlNotSupported against older driver */
-                    ret = NVML_ERROR_FUNCTION_NOT_FOUND;
                 }
 
                 break;
@@ -1193,23 +1215,20 @@ static ReturnStatus NvCtrlNvmlDeviceGetGspFeatures(const CtrlTarget *ctrl_target
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
     switch (attr) {
         case NV_CTRL_ATTR_NVML_GSP_FIRMWARE_MODE:
-            if (nvml->lib.deviceGetGspFirmwareMode) {
+            {
                 unsigned int isEnabled_t = 0;
                 unsigned int defaultMode_t = 0;
-                ret = nvml->lib.deviceGetGspFirmwareMode(device,
+                ret = nvml->lib.DeviceGetGspFirmwareMode(device,
                                                          &isEnabled_t, &defaultMode_t);
                 if (ret == NVML_SUCCESS) {
                     *isEnabled = isEnabled_t;
                     *defaultMode = defaultMode_t;
                     return NvCtrlSuccess;
                 }
-            } else {
-                /* return NvCtrlNotSupported against older driver */
-                ret = NVML_ERROR_FUNCTION_NOT_FOUND;
             }
 
             break;
@@ -1278,7 +1297,7 @@ static ReturnStatus NvCtrlNvmlGetThermalAttribute(const CtrlTarget *ctrl_target,
     }
 
 
-    ret = nvml->lib.deviceGetHandleByIndex(deviceId, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(deviceId, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_THERMAL_SENSOR_READING:
@@ -1332,14 +1351,14 @@ static ReturnStatus NvCtrlNvmlGetCoolerAttribute(const CtrlTarget *ctrl_target,
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(deviceId, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(deviceId, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_THERMAL_COOLER_LEVEL:
-                ret = nvml->lib.deviceGetTargetFanSpeed(device, coolerId, &res);
+                ret = nvml->lib.DeviceGetTargetFanSpeed(device, coolerId, &res);
                 break;
             case NV_CTRL_THERMAL_COOLER_CURRENT_LEVEL:
-                ret = nvml->lib.deviceGetFanSpeed_v2(device, coolerId, &res);
+                ret = nvml->lib.DeviceGetFanSpeed_v2(device, coolerId, &res);
                 break;
 
             case NV_CTRL_THERMAL_COOLER_SPEED:
@@ -1464,11 +1483,11 @@ static ReturnStatus NvCtrlNvmlSetGPUAttribute(CtrlTarget *ctrl_target,
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_GPU_ECC_CONFIGURATION:
-                ret = nvml->lib.deviceSetEccMode(device, val);
+                ret = nvml->lib.DeviceSetEccMode(device, val);
                 break;
 
             case NV_CTRL_GPU_ECC_RESET_ERROR_STATUS:
@@ -1482,7 +1501,7 @@ static ReturnStatus NvCtrlNvmlSetGPUAttribute(CtrlTarget *ctrl_target,
                             counterType = NVML_AGGREGATE_ECC;
                             break;
                     }
-                    ret = nvml->lib.deviceClearEccErrorCounts(device,
+                    ret = nvml->lib.DeviceClearEccErrorCounts(device,
                                                               counterType);
                 }
                 break;
@@ -1493,7 +1512,7 @@ static ReturnStatus NvCtrlNvmlSetGPUAttribute(CtrlTarget *ctrl_target,
                     int count = nvml->coolerCountPerGPU[nvml->deviceIdx];
 
                     for (i = 0; i < count; i++) {
-                        ret = nvml->lib.deviceSetFanControlPolicy(device, i, val);
+                        ret = nvml->lib.DeviceSetFanControlPolicy(device, i, val);
                     }
                 }
                 break;
@@ -1552,15 +1571,15 @@ static ReturnStatus NvCtrlNvmlSetCoolerAttribute(CtrlTarget *ctrl_target,
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(deviceId, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(deviceId, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_THERMAL_COOLER_LEVEL:
-                ret = nvml->lib.deviceSetFanSpeed_v2(device, coolerId, val);
+                ret = nvml->lib.DeviceSetFanSpeed_v2(device, coolerId, val);
                 break;
 
             case NV_CTRL_THERMAL_COOLER_LEVEL_SET_DEFAULT:
-                ret = nvml->lib.deviceSetDefaultFanSpeed_v2(device, coolerId);
+                ret = nvml->lib.DeviceSetDefaultFanSpeed_v2(device, coolerId);
                 break;
 
             default:
@@ -1633,7 +1652,7 @@ static nvmlReturn_t getDeviceMemoryCounts(const CtrlTarget *ctrl_target,
          i < NVML_MEMORY_LOCATION_COUNT;
          i++) {
 
-        ret = nvml->lib.deviceGetMemoryErrorCounter(device, errorType,
+        ret = nvml->lib.DeviceGetMemoryErrorCounter(device, errorType,
                                                     counterType, i, &count);
         if (ret == NVML_SUCCESS) {
             anySuccess = NVML_SUCCESS;
@@ -1669,7 +1688,7 @@ NvCtrlNvmlGetGPUBinaryAttribute(const CtrlTarget *ctrl_target,
         return NvCtrlBadHandle;
     }
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU:
@@ -1679,7 +1698,7 @@ NvCtrlNvmlGetGPUBinaryAttribute(const CtrlTarget *ctrl_target,
                 int offset = 0;
                 int i = 0;
 
-                ret = nvml->lib.deviceGetNumFans(device, &count);
+                ret = nvml->lib.DeviceGetNumFans(device, &count);
                 if (ret != NVML_SUCCESS) {
                     return NvCtrlNotSupported;
                 }
@@ -1948,7 +1967,7 @@ NvCtrlNvmlGetGPUValidAttributeValues(const CtrlTarget *ctrl_target, int attr,
 
     val->permissions.write = NV_FALSE;
 
-    ret = nvml->lib.deviceGetHandleByIndex(nvml->deviceIdx, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(nvml->deviceIdx, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_TOTAL_DEDICATED_GPU_MEMORY:
@@ -1968,6 +1987,9 @@ NvCtrlNvmlGetGPUValidAttributeValues(const CtrlTarget *ctrl_target, int attr,
             case NV_CTRL_GPU_CORES:
             case NV_CTRL_IRQ:
             case NV_CTRL_GPU_POWER_SOURCE:
+            case NV_CTRL_ATTR_NVML_GPU_GET_POWER_USAGE:
+            case NV_CTRL_ATTR_NVML_GPU_MAX_TGP:
+            case NV_CTRL_ATTR_NVML_GPU_DEFAULT_TGP:
                 val->valid_type = CTRL_ATTRIBUTE_VALID_TYPE_INTEGER;
                 break;
 
@@ -2080,7 +2102,7 @@ NvCtrlNvmlGetThermalValidAttributeValues(const CtrlTarget *ctrl_target,
     }
 
 
-    ret = nvml->lib.deviceGetHandleByIndex(deviceId, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(deviceId, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_THERMAL_SENSOR_READING:
@@ -2132,7 +2154,7 @@ NvCtrlNvmlGetCoolerValidAttributeValues(const CtrlTarget *ctrl_target,
     }
 
 
-    ret = nvml->lib.deviceGetHandleByIndex(deviceId, &device);
+    ret = nvml->lib.DeviceGetHandleByIndex(deviceId, &device);
     if (ret == NVML_SUCCESS) {
         switch (attr) {
             case NV_CTRL_THERMAL_COOLER_CURRENT_LEVEL:
@@ -2143,7 +2165,7 @@ NvCtrlNvmlGetCoolerValidAttributeValues(const CtrlTarget *ctrl_target,
                 return NvCtrlSuccess;
 
             case NV_CTRL_THERMAL_COOLER_LEVEL:
-                ret = nvml->lib.deviceGetMinMaxFanSpeed(device, &minSpeed, &maxSpeed);
+                ret = nvml->lib.DeviceGetMinMaxFanSpeed(device, &minSpeed, &maxSpeed);
                 if (ret == NVML_SUCCESS) {
                     /* Range as a percent */
                     val->valid_type = CTRL_ATTRIBUTE_VALID_TYPE_RANGE;
@@ -2268,6 +2290,9 @@ static ReturnStatus NvCtrlNvmlGetIntegerAttributePerms(int attr,
         case NV_CTRL_GPU_CORES:
         case NV_CTRL_IRQ:
         case NV_CTRL_GPU_POWER_SOURCE:
+        case NV_CTRL_ATTR_NVML_GPU_GET_POWER_USAGE:
+        case NV_CTRL_ATTR_NVML_GPU_MAX_TGP:
+        case NV_CTRL_ATTR_NVML_GPU_DEFAULT_TGP:
         case NV_CTRL_GPU_COOLER_MANUAL_CONTROL:
         /* CTRL_ATTRIBUTE_VALID_TYPE_BOOL */
         case NV_CTRL_GPU_ECC_SUPPORTED:
