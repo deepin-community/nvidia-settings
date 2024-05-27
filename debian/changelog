@@ -1,3 +1,48 @@
+nvidia-settings (535.171.04-1) unstable; urgency=medium
+
+  * New upstream release 535.171.04.
+    - Updated the nvidia-settings control panel to ensure that the entire
+      Display Configuration page can be used when the Layout window is shown.
+    - Updated the nvidia-settings control panel to allow the primary display
+      to be set on any GPU in a multi-GPU system.
+  * New upstream release 535.146.02.
+    - Fixed a bug that caused the nvidia-settings control panel to crash
+      when running on Wayland with newer versions of libwayland-client.
+  * New upstream release 535.54.03.
+    - Fixed a bug that prevented SLI Mosaic controls from being displayed in
+  * New upstream release 535.43.02.
+    - Added power usage and power limits information to nvidia-settings
+      PowerMizer page.
+      the nvidia-settings control panel when using GSP Firmware.
+
+ -- Andreas Beckmann <anbe@debian.org>  Mon, 25 Mar 2024 11:28:14 +0100
+
+nvidia-settings (530.41.03-1) unstable; urgency=medium
+
+  * New upstream release 530.41.03.
+  * Switch B-D from pkg-config to pkgconf.
+
+ -- Andreas Beckmann <anbe@debian.org>  Tue, 19 Mar 2024 19:47:39 +0100
+
+nvidia-settings (525.147.05-1~deb12u1) bookworm; urgency=medium
+
+  * Rebuild for bookworm.
+
+ -- Andreas Beckmann <anbe@debian.org>  Mon, 12 Feb 2024 00:39:29 +0100
+
+nvidia-settings (525.147.05-1) unstable; urgency=medium
+
+  * New upstream release 525.147.05.
+  * Build for ppc64el.
+
+ -- Andreas Beckmann <anbe@debian.org>  Fri, 26 Jan 2024 19:29:45 +0100
+
+nvidia-settings (525.125.06-1~deb12u1) bookworm; urgency=medium
+
+  * Rebuild for bookworm.
+
+ -- Andreas Beckmann <anbe@debian.org>  Wed, 12 Jul 2023 11:01:23 +0200
+
 nvidia-settings (525.125.06-1) unstable; urgency=medium
 
   * New upstream release 525.125.06.

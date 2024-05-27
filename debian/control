@@ -15,7 +15,7 @@ Build-Depends:
  libvdpau-dev,
  libxv-dev,
  libxxf86vm-dev,
- pkg-config,
+ pkgconf,
  xserver-xorg-dev,
 Build-Conflicts:
  libxnvctrl-dev,
@@ -26,7 +26,7 @@ Vcs-Browser: https://salsa.debian.org/nvidia-team/nvidia-settings
 Vcs-Git: https://salsa.debian.org/nvidia-team/nvidia-settings.git
 
 Package: nvidia-settings
-Architecture: amd64 arm64
+Architecture: amd64 arm64 ppc64el
 Pre-Depends:
  nvidia-installer-cleanup,
 Depends:
