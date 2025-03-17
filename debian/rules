@@ -28,28 +28,19 @@ endif
 export NV_USE_BUNDLED_LIBJANSSON = 0
 
 include debian/rules.defs
-NVIDIA_LEGACY		?=
 NVIDIA_TESLA		?=
 NVIDIA_RELEASE		 = $(DEB_VERSION_UPSTREAM)
 empty			 =
 variant			 =
 variant_description	 =
-ifneq (,$(NVIDIA_LEGACY))
-variant			 = legacy-$(NVIDIA_LEGACY)xx))
-variant_description	 = $(empty) ($(NVIDIA_LEGACY)xx legacy version)))
-endif
 ifneq (,$(NVIDIA_TESLA))
 variant			 = tesla-$(NVIDIA_TESLA)
 variant_description	 = $(empty) (Tesla $(NVIDIA_TESLA) version)
 endif
-ifeq (yes,$(NVIDIA_TESLA))
-variant			 = tesla
-variant_description	 = $(empty) (Tesla version)
-endif
 -variant		 = $(if $(variant),-$(variant))
 nvidia			 = nvidia$(-variant)
 nvidia_private		 = nvidia/$(if $(variant),$(variant),current)
-watch_version		?= $(or $(filter-out yes,$(NVIDIA_TESLA)),$(NVIDIA_LEGACY))
+watch_version		?= $(NVIDIA_TESLA)
 
 ALL_CONTROL	:= $(wildcard debian/nvidia-settings.*)
 VARIANT_CONTROL	:= $(wildcard debian/nvidia-settings$(-variant).*)

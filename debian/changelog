@@ -1,3 +1,23 @@
+nvidia-settings (535.230.02-1) unstable; urgency=medium
+
+  * New upstream release 535.230.02.
+  * Bump Standards-Version to 4.7.1. No changes needed.
+
+ -- Andreas Beckmann <anbe@debian.org>  Fri, 21 Feb 2025 01:16:57 +0100
+
+nvidia-settings (535.216.01-1) unstable; urgency=medium
+
+  * New upstream release 535.216.01.
+  * Bump Standards-Version to 4.7.0. No changes needed.
+
+ -- Andreas Beckmann <anbe@debian.org>  Mon, 28 Oct 2024 23:22:45 +0100
+
+nvidia-settings (535.171.04-1~deb12u1) bookworm; urgency=medium
+
+  * Rebuild for bookworm.
+
+ -- Andreas Beckmann <anbe@debian.org>  Thu, 28 Mar 2024 16:50:02 +0100
+
 nvidia-settings (535.171.04-1) unstable; urgency=medium
 
   * New upstream release 535.171.04.
@@ -10,10 +30,10 @@ nvidia-settings (535.171.04-1) unstable; urgency=medium
       when running on Wayland with newer versions of libwayland-client.
   * New upstream release 535.54.03.
     - Fixed a bug that prevented SLI Mosaic controls from being displayed in
+      the nvidia-settings control panel when using GSP Firmware.
   * New upstream release 535.43.02.
     - Added power usage and power limits information to nvidia-settings
       PowerMizer page.
-      the nvidia-settings control panel when using GSP Firmware.
 
  -- Andreas Beckmann <anbe@debian.org>  Mon, 25 Mar 2024 11:28:14 +0100
 
